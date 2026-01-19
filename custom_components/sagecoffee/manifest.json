@@ -1,0 +1,11 @@
+{
+  "domain": "sagecoffee",
+  "name": "Sage Coffee",
+  "codeowners": ["@simonjgreen"],
+  "config_flow": true,
+  "documentation": "https://github.com/simonjgreen/sageha",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/simonjgreen/sageha/issues",
+  "requirements": ["sagecoffee==0.1.0"],
+  "version": "1.0.0"
+}

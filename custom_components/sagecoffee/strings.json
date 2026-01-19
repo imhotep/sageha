@@ -1,0 +1,79 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Sage Coffee",
+        "description": "Choose how to authenticate with your Sage/Breville account.",
+        "menu_options": {
+          "password": "Sign in with email and password",
+          "token": "Use refresh token (advanced)"
+        }
+      },
+      "password": {
+        "title": "Sign in to Sage/Breville",
+        "description": "Enter your Sage/Breville account credentials.",
+        "data": {
+          "username": "Email",
+          "password": "Password"
+        }
+      },
+      "token": {
+        "title": "Use Refresh Token",
+        "description": "If you already have a refresh token from sagectl, paste it here.\n\nTo get a token, run:\n`{bootstrap_command}`",
+        "data": {
+          "refresh_token": "Refresh Token"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid authentication. Please check your credentials.",
+      "cannot_connect": "Unable to connect to Sage/Breville servers.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "machine_state": {
+        "name": "State"
+      },
+      "brew_temperature": {
+        "name": "Brew Temperature"
+      },
+      "brew_target": {
+        "name": "Brew Target Temperature"
+      },
+      "steam_temperature": {
+        "name": "Steam Temperature"
+      },
+      "steam_target": {
+        "name": "Steam Target Temperature"
+      },
+      "theme": {
+        "name": "Theme"
+      },
+      "brightness": {
+        "name": "Display Brightness"
+      },
+      "work_light": {
+        "name": "Work Light Brightness"
+      },
+      "grind_size": {
+        "name": "Grind Size"
+      },
+      "volume": {
+        "name": "Volume"
+      },
+      "auto_off": {
+        "name": "Auto-off Time"
+      }
+    },
+    "switch": {
+      "power": {
+        "name": "Power"
+      }
+    }
+  }
+}

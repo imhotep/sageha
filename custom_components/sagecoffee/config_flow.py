@@ -1,0 +1,129 @@
+"""Config flow for Sage Coffee integration."""
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+import voluptuous as vol
+
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.helpers.selector import (
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
+
+from sagecoffee.auth import AuthClient
+
+from .const import CONF_REFRESH_TOKEN, DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
+
+STEP_USER_DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_USERNAME): TextSelector(
+            TextSelectorConfig(type=TextSelectorType.EMAIL)
+        ),
+        vol.Required(CONF_PASSWORD): TextSelector(
+            TextSelectorConfig(type=TextSelectorType.PASSWORD)
+        ),
+    }
+)
+
+STEP_TOKEN_DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_REFRESH_TOKEN): TextSelector(
+            TextSelectorConfig(type=TextSelectorType.PASSWORD)
+        ),
+    }
+)
+
+
+class SageCoffeeConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Sage Coffee."""
+
+    VERSION = 1
+
+    def __init__(self) -> None:
+        """Initialize the config flow."""
+        self._refresh_token: str | None = None
+
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle the initial step - choose auth method."""
+        return self.async_show_menu(
+            step_id="user",
+            menu_options=["password", "token"],
+        )
+
+    async def async_step_password(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle username/password authentication."""
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            try:
+                auth_client = AuthClient()
+                tokens = await auth_client.password_realm_login(
+                    user_input[CONF_USERNAME],
+                    user_input[CONF_PASSWORD],
+                )
+                self._refresh_token = tokens.refresh_token
+
+                # Create the config entry
+                return self.async_create_entry(
+                    title="Sage Coffee",
+                    data={
+                        CONF_REFRESH_TOKEN: self._refresh_token,
+                    },
+                )
+
+            except Exception as err:
+                _LOGGER.error("Authentication failed: %s", err)
+                errors["base"] = "invalid_auth"
+
+        return self.async_show_form(
+            step_id="password",
+            data_schema=STEP_USER_DATA_SCHEMA,
+            errors=errors,
+        )
+
+    async def async_step_token(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle refresh token authentication."""
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            refresh_token = user_input[CONF_REFRESH_TOKEN]
+
+            try:
+                # Validate the token by trying to refresh it
+                auth_client = AuthClient()
+                tokens = await auth_client.refresh(refresh_token)
+
+                # Use the potentially rotated token
+                self._refresh_token = tokens.refresh_token or refresh_token
+
+                return self.async_create_entry(
+                    title="Sage Coffee",
+                    data={
+                        CONF_REFRESH_TOKEN: self._refresh_token,
+                    },
+                )
+
+            except Exception as err:
+                _LOGGER.error("Token validation failed: %s", err)
+                errors["base"] = "invalid_auth"
+
+        return self.async_show_form(
+            step_id="token",
+            data_schema=STEP_TOKEN_DATA_SCHEMA,
+            errors=errors,
+            description_placeholders={
+                "bootstrap_command": "sagectl bootstrap --username your.email@example.com"
+            },
+        )
