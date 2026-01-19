@@ -173,22 +173,22 @@ class SageCoffeeSensor(CoordinatorEntity[SageCoffeeCoordinator], SensorEntity):
     def __init__(
         self,
         coordinator: SageCoffeeCoordinator,
-        appliance: dict[str, Any],
+        appliance: Any,
         description: SageCoffeeSensorEntityDescription,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.entity_description = description
         self._appliance = appliance
-        self._serial = appliance.get("serialNumber", appliance.get("serial_number", ""))
+        self._serial = appliance.serial_number
         self._attr_unique_id = f"{self._serial}_{description.key}"
 
         # Device info
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._serial)},
-            name=appliance.get("name", f"Sage Coffee {self._serial[-4:]}"),
+            name=appliance.name or f"Sage Coffee {self._serial[-4:]}",
             manufacturer="Sage/Breville",
-            model=appliance.get("model", "Unknown"),
+            model=appliance.model or "Unknown",
             serial_number=self._serial,
         )
 
