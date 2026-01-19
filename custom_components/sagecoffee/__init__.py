@@ -12,7 +12,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from sagecoffee import SageCoffeeClient
-from sagecoffee.auth import AuthClient
+from sagecoffee.auth import DEFAULT_CLIENT_ID
 
 from .const import CONF_REFRESH_TOKEN, DOMAIN, PLATFORMS
 
@@ -104,7 +104,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: SageCoffeeConfigEntry) -
         raise ConfigEntryAuthFailed("No refresh token available")
 
     try:
-        client = SageCoffeeClient(refresh_token=refresh_token)
+        client = SageCoffeeClient(
+            client_id=DEFAULT_CLIENT_ID,
+            refresh_token=refresh_token,
+        )
         await client.__aenter__()
 
         # Discover appliances
