@@ -14,7 +14,7 @@ from homeassistant.helpers.selector import (
     TextSelectorType,
 )
 
-from sagecoffee.auth import AuthClient
+from sagecoffee.auth import AuthClient, DEFAULT_CLIENT_ID
 
 from .const import CONF_REFRESH_TOKEN, DOMAIN
 
@@ -66,7 +66,7 @@ class SageCoffeeConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                auth_client = AuthClient()
+                auth_client = AuthClient(client_id=DEFAULT_CLIENT_ID)
                 tokens = await auth_client.password_realm_login(
                     user_input[CONF_USERNAME],
                     user_input[CONF_PASSWORD],
@@ -82,7 +82,7 @@ class SageCoffeeConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
 
             except Exception as err:
-                _LOGGER.error("Authentication failed: %s", err)
+                _LOGGER.exception("Authentication failed: %s", err)
                 errors["base"] = "invalid_auth"
 
         return self.async_show_form(
@@ -102,7 +102,7 @@ class SageCoffeeConfigFlow(ConfigFlow, domain=DOMAIN):
 
             try:
                 # Validate the token by trying to refresh it
-                auth_client = AuthClient()
+                auth_client = AuthClient(client_id=DEFAULT_CLIENT_ID)
                 tokens = await auth_client.refresh(refresh_token)
 
                 # Use the potentially rotated token
@@ -116,7 +116,7 @@ class SageCoffeeConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
 
             except Exception as err:
-                _LOGGER.error("Token validation failed: %s", err)
+                _LOGGER.exception("Token validation failed: %s", err)
                 errors["base"] = "invalid_auth"
 
         return self.async_show_form(
