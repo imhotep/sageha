@@ -1,22 +1,30 @@
 """Config flow for Sage Coffee integration."""
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
+from sagecoffee.auth import DEFAULT_CLIENT_ID, AuthClient
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers.selector import (
+    SelectSelector,
+    SelectSelectorConfig,
     TextSelector,
     TextSelectorConfig,
     TextSelectorType,
 )
 
-from sagecoffee.auth import AuthClient, DEFAULT_CLIENT_ID
-
-from .const import CONF_REFRESH_TOKEN, DOMAIN
+from .const import (
+    CONF_MACHINE_TYPE,
+    CONF_REFRESH_TOKEN,
+    DOMAIN,
+    MACHINE_TYPE_BREVILLE,
+    MACHINE_TYPE_SAGE,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,6 +36,14 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_PASSWORD): TextSelector(
             TextSelectorConfig(type=TextSelectorType.PASSWORD)
         ),
+        vol.Required(CONF_MACHINE_TYPE): SelectSelector(
+            SelectSelectorConfig(
+                options=[
+                    {"label": "Sage", "value": MACHINE_TYPE_SAGE},
+                    {"label": "Breville", "value": MACHINE_TYPE_BREVILLE},
+                ]
+            )
+        ),
     }
 )
 
@@ -35,6 +51,14 @@ STEP_TOKEN_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_REFRESH_TOKEN): TextSelector(
             TextSelectorConfig(type=TextSelectorType.PASSWORD)
+        ),
+        vol.Required(CONF_MACHINE_TYPE): SelectSelector(
+            SelectSelectorConfig(
+                options=[
+                    {"label": "Sage", "value": MACHINE_TYPE_SAGE},
+                    {"label": "Breville", "value": MACHINE_TYPE_BREVILLE},
+                ]
+            )
         ),
     }
 )
@@ -78,6 +102,7 @@ class SageCoffeeConfigFlow(ConfigFlow, domain=DOMAIN):
                     title="Sage Coffee",
                     data={
                         CONF_REFRESH_TOKEN: self._refresh_token,
+                        CONF_MACHINE_TYPE: user_input[CONF_MACHINE_TYPE],
                     },
                 )
 
@@ -112,6 +137,7 @@ class SageCoffeeConfigFlow(ConfigFlow, domain=DOMAIN):
                     title="Sage Coffee",
                     data={
                         CONF_REFRESH_TOKEN: self._refresh_token,
+                        CONF_MACHINE_TYPE: user_input[CONF_MACHINE_TYPE],
                     },
                 )
 

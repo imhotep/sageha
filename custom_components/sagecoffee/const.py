@@ -4,6 +4,11 @@ DOMAIN = "sagecoffee"
 
 # Configuration keys
 CONF_REFRESH_TOKEN = "refresh_token"
+CONF_MACHINE_TYPE = "machine_type"
+
+# Machine type values
+MACHINE_TYPE_SAGE = "sageCoffee"
+MACHINE_TYPE_BREVILLE = "brevilleCoffee"
 
 # Defaults
 DEFAULT_NAME = "Sage Coffee"
