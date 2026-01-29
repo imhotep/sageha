@@ -26,14 +26,14 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
 
     entities = [
-        SageCoffeeApplianaceNameText(coordinator, appliance)
+        SageCoffeeApplianceNameText(coordinator, appliance)
         for appliance in coordinator.appliances
     ]
 
     async_add_entities(entities)
 
 
-class SageCoffeeApplianaceNameText(CoordinatorEntity[SageCoffeeCoordinator], TextEntity):
+class SageCoffeeApplianceNameText(CoordinatorEntity[SageCoffeeCoordinator], TextEntity):
     """Represents the appliance name text input."""
 
     _attr_has_entity_name = True
