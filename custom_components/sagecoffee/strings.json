@@ -11,7 +11,7 @@
     "step": {
       "password": {
         "data": {
-          "machine_type": "Machine Type",
+          "brand": "Brand",
           "password": "Password",
           "username": "Email"
         },
@@ -20,7 +20,7 @@
       },
       "token": {
         "data": {
-          "machine_type": "Machine Type",
+          "brand": "Brand",
           "refresh_token": "Refresh Token"
         },
         "description": "If you already have a refresh token from sagectl, paste it here.\n\nTo get a token, run:\n`{bootstrap_command}`",

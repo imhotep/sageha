@@ -4,7 +4,7 @@ DOMAIN = "sagecoffee"
 
 # Configuration keys
 CONF_REFRESH_TOKEN = "refresh_token"
-CONF_MACHINE_TYPE = "machine_type"
+CONF_BRAND = "brand"
 
 # Machine type values
 MACHINE_TYPE_SAGE = "sageCoffee"
