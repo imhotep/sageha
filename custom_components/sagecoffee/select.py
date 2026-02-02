@@ -89,7 +89,7 @@ class SageCoffeeThemeSelect(CoordinatorEntity[SageCoffeeCoordinator], SelectEnti
             raise ValueError(f"Invalid theme: {option}")
 
         try:
-            await self.coordinator.client.set_color_theme(self._serial, option)
+            await self.coordinator.client.set_color_theme(option, self._serial)
             # Update the state through coordinator
             state = self.coordinator.get_state(self._serial)
             if state:

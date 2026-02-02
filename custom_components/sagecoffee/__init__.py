@@ -23,7 +23,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import ssl as ssl_util
 import voluptuous as vol
 
-from .const import CONF_MACHINE_TYPE, CONF_REFRESH_TOKEN, DOMAIN, PLATFORMS
+from .const import CONF_BRAND, CONF_REFRESH_TOKEN, DOMAIN, PLATFORMS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -289,7 +289,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SageCoffeeConfigEntry) -
         client = SageCoffeeClient(
             client_id=DEFAULT_CLIENT_ID,
             refresh_token=refresh_token,
-            app=entry.data.get(CONF_MACHINE_TYPE),
+            app=entry.data.get(CONF_BRAND),
             httpx_client=http_client,
             ssl_context=ssl_context,
         )
