@@ -212,16 +212,14 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
         coordinator = entry.runtime_data
 
         try:
-            # Convert days list to the format expected by the API (comma-separated string)
-            days_str = ",".join(days) if days else None
+            # Build cron expression: "minute hour * * days-of-week"
+            days_of_week = ",".join(days) if days else "*"
+            cron = f"{minutes} {hours} * * {days_of_week}"
 
-            # Call the API to set wake schedule
             await coordinator.client.set_wake_schedule(
-                serial=serial,
-                hours=hours,
-                minutes=minutes,
-                days=days_str,
+                cron=cron,
                 enabled=enabled,
+                serial=serial,
             )
         except Exception as err:
             raise HomeAssistantError(f"Failed to set wake schedule: {err}") from err
