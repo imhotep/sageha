@@ -17,7 +17,7 @@ from .const import DOMAIN, STATE_ASLEEP
 _LOGGER = logging.getLogger(__name__)
 
 # Available themes based on Sage Coffee API
-AVAILABLE_THEMES = ["default", "dark", "light"]
+AVAILABLE_THEMES = ["dark", "light"]
 
 
 async def async_setup_entry(
