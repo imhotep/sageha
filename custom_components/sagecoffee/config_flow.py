@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from sagecoffee.auth import DEFAULT_CLIENT_ID, AuthClient
+from .sagecoffeelib.auth import DEFAULT_CLIENT_ID, AuthClient
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult

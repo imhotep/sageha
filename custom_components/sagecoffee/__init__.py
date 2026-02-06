@@ -6,8 +6,8 @@ import asyncio
 import logging
 from typing import Any
 
-from sagecoffee import SageCoffeeClient
-from sagecoffee.auth import DEFAULT_CLIENT_ID
+from .sagecoffeelib import SageCoffeeClient
+from .sagecoffeelib.auth import DEFAULT_CLIENT_ID
 
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
@@ -151,22 +151,34 @@ class SageCoffeeCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             )
 
     async def _websocket_listener(self) -> None:
-        """Listen for WebSocket state updates."""
+        """Listen for WebSocket state updates with automatic reconnection."""
         _LOGGER.debug("Starting WebSocket listener")
-        try:
-            async for state in self.client.tail_state():
-                _LOGGER.debug(
-                    "Received state update for %s: %s",
-                    state.serial_number,
-                    state.reported_state,
+        reconnect_delay = 5
+        max_reconnect_delay = 300
+
+        while True:
+            try:
+                async for state in self.client.tail_state():
+                    _LOGGER.debug(
+                        "Received state update for %s: %s",
+                        state.serial_number,
+                        state.reported_state,
+                    )
+                    self._update_state_from_device(state)
+                    self.async_set_updated_data(self._states)
+                    # Reset delay on successful message
+                    reconnect_delay = 5
+            except asyncio.CancelledError:
+                _LOGGER.debug("WebSocket listener cancelled")
+                raise
+            except Exception as err:
+                _LOGGER.warning(
+                    "WebSocket error, reconnecting in %ds: %s",
+                    reconnect_delay,
+                    err,
                 )
-                self._update_state_from_device(state)
-                self.async_set_updated_data(self._states)
-        except asyncio.CancelledError:
-            _LOGGER.debug("WebSocket listener cancelled")
-            raise
-        except Exception as err:
-            _LOGGER.exception("WebSocket error: %s", err)
+                await asyncio.sleep(reconnect_delay)
+                reconnect_delay = min(reconnect_delay * 2, max_reconnect_delay)
 
     async def async_stop_websocket(self) -> None:
         """Stop the WebSocket listener task."""
@@ -280,19 +292,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: SageCoffeeConfigEntry) -
     if not refresh_token:
         raise ConfigEntryAuthFailed("No refresh token available")
 
-    try:
-        # Get Home Assistant's pre-configured httpx client and SSL context
-        # These are created in the executor to avoid blocking the event loop
-        http_client = httpx_client.get_async_client(hass)
-        ssl_context = ssl_util.client_context()
+    # Get Home Assistant's pre-configured httpx client and SSL context
+    http_client = httpx_client.get_async_client(hass)
+    ssl_context = ssl_util.client_context()
 
-        client = SageCoffeeClient(
-            client_id=DEFAULT_CLIENT_ID,
-            refresh_token=refresh_token,
-            app=entry.data.get(CONF_BRAND),
-            httpx_client=http_client,
-            ssl_context=ssl_context,
-        )
+    client = SageCoffeeClient(
+        client_id=DEFAULT_CLIENT_ID,
+        refresh_token=refresh_token,
+        app=entry.data.get(CONF_BRAND),
+        httpx_client=http_client,
+        ssl_context=ssl_context,
+    )
+
+    try:
         await client.__aenter__()
 
         # Discover appliances
@@ -304,6 +316,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: SageCoffeeConfigEntry) -
 
     except Exception as err:
         _LOGGER.error("Failed to connect to Sage Coffee API: %s", err)
+        await client.__aexit__(None, None, None)
         raise ConfigEntryNotReady from err
 
     # Create coordinator
