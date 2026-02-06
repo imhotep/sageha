@@ -42,9 +42,9 @@ SET_WAKE_SCHEDULE_SCHEMA = vol.Schema(
         vol.Required(ATTR_SERIAL): cv.string,
         vol.Required(ATTR_HOURS): vol.Range(min=0, max=23),
         vol.Required(ATTR_MINUTES): vol.Range(min=0, max=59),
-        vol.Optional(ATTR_DAYS): vol.All(
-            [vol.In(["mon", "tue", "wed", "thu", "fri", "sat", "sun"])]
-        ),
+        vol.Optional(ATTR_DAYS): [
+            vol.In(["mon", "tue", "wed", "thu", "fri", "sat", "sun"])
+        ],
         vol.Optional(ATTR_ENABLED, default=True): cv.boolean,
     }
 )
