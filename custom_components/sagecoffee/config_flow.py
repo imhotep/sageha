@@ -97,6 +97,12 @@ class SageCoffeeConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
                 self._refresh_token = tokens.refresh_token
 
+                # Use auth0 subject as unique ID to prevent duplicates
+                unique_id = tokens.auth0_sub()
+                if unique_id:
+                    await self.async_set_unique_id(unique_id)
+                    self._abort_if_unique_id_configured()
+
                 # Create the config entry
                 return self.async_create_entry(
                     title="Sage Coffee",
@@ -132,6 +138,12 @@ class SageCoffeeConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 # Use the potentially rotated token
                 self._refresh_token = tokens.refresh_token or refresh_token
+
+                # Use auth0 subject as unique ID to prevent duplicates
+                unique_id = tokens.auth0_sub()
+                if unique_id:
+                    await self.async_set_unique_id(unique_id)
+                    self._abort_if_unique_id_configured()
 
                 return self.async_create_entry(
                     title="Sage Coffee",
